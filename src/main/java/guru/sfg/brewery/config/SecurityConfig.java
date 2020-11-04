@@ -23,6 +23,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    /*
     public RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
         RestHeaderAuthFilter filter = new RestHeaderAuthFilter(new AntPathRequestMatcher("/api/**"));
         filter.setAuthenticationManager(authenticationManager);
@@ -34,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         filter.setAuthenticationManager(authenticationManager);
         return filter;
     }
+    */
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -47,12 +49,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        /*
         http
                 .addFilterBefore(restHeaderAuthFilter(authenticationManager()),
                                 UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(restUrlAuthFilter(authenticationManager()),
                                     UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable();
+         */
 
         http
                 .authorizeRequests(authorize -> {
@@ -67,7 +71,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().and()
-                .httpBasic();
+                .httpBasic()
+                .and()
+                .csrf().disable();
 
         //h2-console config
         http.headers().frameOptions().sameOrigin();
