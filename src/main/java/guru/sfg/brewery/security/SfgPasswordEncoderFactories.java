@@ -16,9 +16,9 @@ import java.util.Map;
 public class SfgPasswordEncoderFactories {
 
     public static PasswordEncoder createDelegatingPasswordEncoder() {
-        String encodingId = "bcrypt15";
+        String encodingId = "bcrypt12";
         Map<String, PasswordEncoder> encoders = new HashMap();
-        encoders.put(encodingId, new BCryptPasswordEncoder(15));
+        encoders.put(encodingId, new BCryptPasswordEncoder(12));
         encoders.put("bcrypt", new BCryptPasswordEncoder());
         encoders.put("ldap", new LdapShaPasswordEncoder());
         encoders.put("noop", NoOpPasswordEncoder.getInstance());
