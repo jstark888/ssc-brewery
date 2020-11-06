@@ -23,11 +23,6 @@ public class Authority {
 
     private String permission;
 
-    /*
-    @ManyToMany(mappedBy = "authorities")
-    private Set<User> users;
-    */
-
     @ManyToMany(mappedBy = "authorities")
     private Set<Role> roles;
 }
