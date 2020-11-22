@@ -24,8 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -150,7 +149,8 @@ class BeerOrderControllerTest extends BaseIT {
     }
 
     //@Transactional required to prevent org.hibernate.LazyInitializationException
-    // related to guru.sfg.brewery.domain.Customer.beerOrders
+    // related to guru.sfg.brewery.domain.Customer.beerOrders,
+    // because beer orders are not being eagerly fetched in this context
     @Transactional
     @Test
     void getByOrderIdNotAuth() throws Exception {
@@ -195,25 +195,52 @@ class BeerOrderControllerTest extends BaseIT {
         mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId()))
                 .andExpect(status().isForbidden());
     }
-    
-    @Disabled
+
+    //@Transactional required to prevent org.hibernate.LazyInitializationException
+    // related to guru.sfg.brewery.domain.Customer.beerOrders
+    @Transactional
     @Test
-    void pickUpOrderNotAuth() {
+    void pickUpOrderNotAuth() throws Exception {
+        BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId() +"/pickup"))
+                .andExpect(status().isUnauthorized());
     }
 
-    @Disabled
+    //@Transactional required to prevent org.hibernate.LazyInitializationException
+    // related to guru.sfg.brewery.domain.Customer.beerOrders
+    @Transactional
+    @WithUserDetails("spring")
     @Test
-    void pickUpOrderNotAdminUser() {
+    void pickUpOrderUserAdmin() throws Exception {
+        BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId() +"/pickup"))
+                .andExpect(status().isNoContent());
     }
 
-    @Disabled
+    //@Transactional required to prevent org.hibernate.LazyInitializationException
+    // related to guru.sfg.brewery.domain.Customer.beerOrders
+    @Transactional
+    @WithUserDetails(DefaultBreweryLoader.STPETE_USER)
     @Test
-    void pickUpOrderCustomerUserAUTH() {
+    void pickUpOrderCustomerUserAUTH() throws Exception {
+        BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId() +"/pickup"))
+                .andExpect(status().isNoContent());
     }
 
-    @Disabled
+    //@Transactional required to prevent org.hibernate.LazyInitializationException
+    // related to guru.sfg.brewery.domain.Customer.beerOrders
+    @Transactional
+    @WithUserDetails(DefaultBreweryLoader.KEYWEST_USER)
     @Test
-    void pickUpOrderCustomerUserNOT_AUTH() {
+    void pickUpOrderCustomerUserNOT_AUTH() throws Exception {
+        BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId() +"/pickup"))
+                .andExpect(status().isForbidden());
     }
 
     private BeerOrderDto buildOrderDto(Customer customer, UUID beerId) {
